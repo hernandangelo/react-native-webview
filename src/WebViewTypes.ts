@@ -228,6 +228,7 @@ export type WebViewSource = WebViewSourceUri | WebViewSourceHtml;
 
 export interface ViewManager {
   startLoadWithResult: Function;
+  setCookie: (url: string, cookie: any, useWebKit: boolean) => Promise<void>;
 }
 
 export interface WebViewNativeConfig {

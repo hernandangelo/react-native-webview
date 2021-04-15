@@ -10,9 +10,14 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTDefines.h>
 #import "RNCWebView.h"
+#import "RNCWKProcessPoolManager.h"
 
 @interface RNCWebViewManager () <RNCWebViewDelegate>
 @end
+
+static NSString * const NOT_AVAILABLE_ERROR_MESSAGE = @"WebKit/WebKit-Components are only available with iOS11 and higher!";
+static NSString * const INVALID_URL_MISSING_HTTP = @"Invalid URL: It may be missing a protocol (ex. http:// or https://).";
+static NSString * const INVALID_DOMAINS = @"Cookie URL host %@ and domain %@ mismatched. The cookie won't set correctly.";
 
 @implementation RCTConvert (WKWebView)
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 /* iOS 13 */
@@ -164,6 +169,108 @@ RCT_EXPORT_METHOD(injectJavaScript:(nonnull NSNumber *)reactTag script:(NSString
       [view injectJavaScript:script];
     }
   }];
+}
+
+-(NSHTTPCookie *)makeHTTPCookieObject:(NSURL *)url
+    props:(NSDictionary *)props
+{
+    NSString *topLevelDomain = url.host;
+
+    if (isEmpty(topLevelDomain)){
+        NSException* myException = [NSException
+            exceptionWithName:@"Exception"
+            reason:INVALID_URL_MISSING_HTTP
+            userInfo:nil];
+        @throw myException;
+    }
+
+    NSString *name = [RCTConvert NSString:props[@"name"]];
+    NSString *value = [RCTConvert NSString:props[@"value"]];
+    NSString *path = [RCTConvert NSString:props[@"path"]];
+    NSString *domain = [RCTConvert NSString:props[@"domain"]];
+    NSString *version = [RCTConvert NSString:props[@"version"]];
+    NSDate *expires = [RCTConvert NSDate:props[@"expires"]];
+    NSNumber *secure = [RCTConvert NSNumber:props[@"secure"]];
+    NSNumber *httpOnly = [RCTConvert NSNumber:props[@"httpOnly"]];
+
+    NSMutableDictionary *cookieProperties = [NSMutableDictionary dictionary];
+    [cookieProperties setObject:name forKey:NSHTTPCookieName];
+    [cookieProperties setObject:value forKey:NSHTTPCookieValue];
+
+    if (!isEmpty(path)) {
+        [cookieProperties setObject:path forKey:NSHTTPCookiePath];
+    } else {
+        [cookieProperties setObject:@"/" forKey:NSHTTPCookiePath];
+    }
+    if (!isEmpty(domain)) {
+        // Stripping the leading . to ensure the following check is accurate
+        NSString *strippedDomain = domain;
+         if ([strippedDomain hasPrefix:@"."]) {
+            strippedDomain = [strippedDomain substringFromIndex:1];
+        }
+
+        if (![topLevelDomain containsString:strippedDomain] &&
+            ![topLevelDomain isEqualToString: strippedDomain]) {
+                NSException* myException = [NSException
+                    exceptionWithName:@"Exception"
+                    reason: [NSString stringWithFormat:INVALID_DOMAINS, topLevelDomain, domain]
+                    userInfo:nil];
+                @throw myException;
+        }
+
+        [cookieProperties setObject:domain forKey:NSHTTPCookieDomain];
+    } else {
+        [cookieProperties setObject:topLevelDomain forKey:NSHTTPCookieDomain];
+    }
+    if (!isEmpty(version)) {
+         [cookieProperties setObject:version forKey:NSHTTPCookieVersion];
+    }
+    if (!isEmpty(expires)) {
+         [cookieProperties setObject:expires forKey:NSHTTPCookieExpires];
+    }
+    if (!isEmpty(secure)) {
+        [cookieProperties setObject:secure forKey:@"secure"];
+    }
+    if (!isEmpty(httpOnly)) {
+        [cookieProperties setObject:httpOnly forKey:@"HTTPOnly"];
+    }
+
+    NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
+
+    return cookie;
+}
+
+RCT_EXPORT_METHOD(
+    setCookie:(NSURL *)url
+    cookie:(NSDictionary *)props
+    useWebKit:(BOOL)useWebKit
+    resolver:(RCTPromiseResolveBlock)resolve
+    rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSHTTPCookie *cookie;
+    @try {
+        cookie = [self makeHTTPCookieObject:url props:props];
+    }
+    @catch ( NSException *e ) {
+        reject(@"", [e reason], nil);
+        return;
+    }
+
+    if (useWebKit) {
+        if (@available(iOS 11.0, *)) {
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                WKHTTPCookieStore *cookieStore = [[WKProcessPool sharedDataStore] httpCookieStore];
+                [cookieStore setCookie:cookie completionHandler:^() {
+                    resolve(@(YES));
+                }];
+            });
+        } else {
+            reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        }
+    } else {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+        resolve(@(YES));
+    }
 }
 
 RCT_EXPORT_METHOD(goBack:(nonnull NSNumber *)reactTag)

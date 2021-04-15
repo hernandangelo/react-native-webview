@@ -67,6 +67,10 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     return true;
   };
 
+  static setCookie = (url: string, cookie: any, useWebKit = false) => {
+    return RNCWebViewManager.setCookie(url, cookie, useWebKit);
+  }
+
   state: State = {
     viewState: this.props.startInLoadingState ? 'LOADING' : 'IDLE',
     lastErrorEvent: null,

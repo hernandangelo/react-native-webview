@@ -1323,9 +1323,12 @@ static NSDictionary* customCertificatesForHost;
       // Set Cookies in iOS 11 and above, initialize websiteDataStore before setting cookies
       // See also https://forums.developer.apple.com/thread/97194
       // check if websiteDataStore has not been initialized before
-      if(!_incognito && !_cacheEnabled) {
-        wkWebViewConfig.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-      }
+      // if(!_incognito && !_cacheEnabled) {
+      //   wkWebViewConfig.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+      // }
+
+      wkWebViewConfig.websiteDataStore = [[RNCWKProcessPoolManager sharedManager] sharedDataStore];
+
       for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
         [wkWebViewConfig.websiteDataStore.httpCookieStore setCookie:cookie completionHandler:nil];
       }

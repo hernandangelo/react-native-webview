@@ -10,6 +10,7 @@
 
 @interface RNCWKProcessPoolManager() {
     WKProcessPool *_sharedProcessPool;
+    WKWebsiteDataStore *_sharedDataStore;
 }
 @end
 
@@ -30,6 +31,14 @@
         _sharedProcessPool = [[WKProcessPool alloc] init];
     }
     return _sharedProcessPool;
+}
+
+- (WKWebsiteDataStore *)sharedDataStore {
+    if(!_sharedDataStore) {
+        _sharedDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+    }
+
+    return _sharedDataStore;
 }
 
 @end
