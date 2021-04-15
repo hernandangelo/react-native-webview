@@ -64,6 +64,11 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
      * Tells this WebView to clear its internal back/forward list.
      */
     clearHistory: () => void;
+
+    /**
+     * (IOS Only)
+     */
+    setCookie: (url: string, cookie: any, useWebkit: boolean) => Promise<void>
 }
 
 export {WebView};
