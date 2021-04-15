@@ -19,6 +19,14 @@ static NSString * const NOT_AVAILABLE_ERROR_MESSAGE = @"WebKit/WebKit-Components
 static NSString * const INVALID_URL_MISSING_HTTP = @"Invalid URL: It may be missing a protocol (ex. http:// or https://).";
 static NSString * const INVALID_DOMAINS = @"Cookie URL host %@ and domain %@ mismatched. The cookie won't set correctly.";
 
+static inline BOOL isEmpty(id value)
+{
+    return value == nil
+        || ([value respondsToSelector:@selector(length)] && [(NSData *)value length] == 0)
+        || ([value respondsToSelector:@selector(count)] && [(NSArray *)value count] == 0);
+}
+
+
 @implementation RCTConvert (WKWebView)
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 /* iOS 13 */
 RCT_ENUM_CONVERTER(WKContentMode, (@{
@@ -259,7 +267,7 @@ RCT_EXPORT_METHOD(
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
-                WKHTTPCookieStore *cookieStore = [[WKProcessPool sharedDataStore] httpCookieStore];
+                WKHTTPCookieStore *cookieStore = [[[RNCWKProcessPoolManager sharedManager] sharedDataStore] httpCookieStore];
                 [cookieStore setCookie:cookie completionHandler:^() {
                     resolve(@(YES));
                 }];
