@@ -68,7 +68,7 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
     /**
      * (IOS Only)
      */
-    static setCookie: (url: string, cookie: any, useWebkit: boolean) => Promise<void>
+    static setCookie: (url: string, cookie: any, useWebkit: boolean) => Promise<boolean>
 }
 
 export {WebView};
