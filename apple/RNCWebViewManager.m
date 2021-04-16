@@ -281,6 +281,36 @@ RCT_EXPORT_METHOD(
     }
 }
 
+RCT_EXPORT_METHOD(
+    clearAll:(BOOL)useWebKit
+    resolver:(RCTPromiseResolveBlock)resolve
+    rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if (useWebKit) {
+        if (@available(iOS 11.0, *)) {
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                // https://stackoverflow.com/questions/46465070/how-to-delete-cookies-from-wkhttpcookiestore#answer-47928399
+                NSSet *websiteDataTypes = [NSSet setWithArray:@[WKWebsiteDataTypeCookies]];
+                NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+                [[[RNCWKProcessPoolManager sharedManager] sharedDataStore] removeDataOfTypes:websiteDataTypes
+                                                        modifiedSince:dateFrom
+                                                        completionHandler:^() {
+                                                            resolve(@(YES));
+                                                        }];
+            });
+        } else {
+            reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        }
+    } else {
+        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+        for (NSHTTPCookie *c in cookieStorage.cookies) {
+            [cookieStorage deleteCookie:c];
+        }
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        resolve(@(YES));
+    }
+}
+
 RCT_EXPORT_METHOD(goBack:(nonnull NSNumber *)reactTag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCWebView *> *viewRegistry) {

@@ -5,6 +5,16 @@ import { IOSWebViewProps, AndroidWebViewProps } from './lib/WebViewTypes';
 export { FileDownload, WebViewMessageEvent, WebViewNavigation } from "./lib/WebViewTypes";
 
 export type WebViewProps = IOSWebViewProps & AndroidWebViewProps;
+export interface Cookie {
+    name: string;
+    value: string;
+    path?: string;
+    domain?: string;
+    version?: string;
+    expires?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+  }
 
 declare class WebView<P = {}> extends Component<WebViewProps & P> {
     /**
@@ -68,7 +78,10 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
     /**
      * (IOS Only)
      */
-    static setCookie: (url: string, cookie: any, useWebkit: boolean) => Promise<boolean>
+    static setCookie(url: string, cookie: Cookie, useWebkit?: boolean): Promise<boolean>;
+
+    static clearAllCookies(useWebKit?: boolean): Promise<boolean>;
+
 }
 
 export {WebView};
