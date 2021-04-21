@@ -29,6 +29,7 @@ import {
   ViewManager,
   State,
   RNCWebViewUIManagerIOS,
+  Cookie,
 } from './WebViewTypes';
 
 import styles from './WebView.styles';
@@ -67,8 +68,12 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     return true;
   };
 
-  static setCookie = (url: string, cookie: any, useWebKit = false) => {
+  static setCookie = (url: string, cookie: Cookie, useWebKit = false) => {
     return RNCWebViewManager.setCookie(url, cookie, useWebKit);
+  }
+
+  static clearAllCookies = (useWebKit = false) => {
+    return RNCWebViewManager.clearAllCookies(useWebKit);
   }
 
   state: State = {

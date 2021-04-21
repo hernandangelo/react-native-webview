@@ -282,7 +282,7 @@ RCT_EXPORT_METHOD(
 }
 
 RCT_EXPORT_METHOD(
-    clearAll:(BOOL)useWebKit
+    clearAllCookies:(BOOL)useWebKit
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {

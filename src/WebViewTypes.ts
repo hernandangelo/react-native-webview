@@ -144,6 +144,16 @@ export interface WebViewHttpError extends WebViewNativeEvent {
 export interface WebViewRenderProcessGoneDetail {
   didCrash: boolean;
 }
+export interface Cookie {
+  name: string;
+  value: string;
+  path?: string;
+  domain?: string;
+  version?: string;
+  expires?: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+}
 
 export type WebViewEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 
@@ -228,9 +238,9 @@ export type WebViewSource = WebViewSourceUri | WebViewSourceHtml;
 
 export interface ViewManager {
   startLoadWithResult: Function;
-  setCookie: (url: string, cookie: any, useWebKit: boolean) => Promise<void>;
+  setCookie: (url: string, cookie: Cookie, useWebKit?: boolean) => Promise<boolean>;
+  clearAllCookies: (useWebKit?: boolean) => Promise<boolean>;
 }
-
 export interface WebViewNativeConfig {
   /**
    * The native component used to render the WebView.
