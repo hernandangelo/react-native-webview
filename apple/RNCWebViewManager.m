@@ -311,6 +311,53 @@ RCT_EXPORT_METHOD(
     }
 }
 
+RCT_EXPORT_METHOD(
+    getAllCookies:(BOOL)useWebKit
+    resolver:(RCTPromiseResolveBlock)resolve
+    rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if (useWebKit) {
+        if (@available(iOS 11.0, *)) {
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                WKHTTPCookieStore *cookieStore = [[[RNCWKProcessPoolManager sharedManager] sharedDataStore] httpCookieStore];
+                [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
+                    resolve([self createCookieList: allCookies]);
+                }];
+            });
+        } else {
+            reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        }
+    } else {
+        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+        resolve([self createCookieList:cookieStorage.cookies]);
+    }
+}
+
+-(NSDictionary *)createCookieList:(NSArray<NSHTTPCookie *>*)cookies
+{
+    NSMutableDictionary *cookieList = [NSMutableDictionary dictionary];
+    for (NSHTTPCookie *cookie in cookies) {
+        [cookieList setObject:[self createCookieData:cookie] forKey:cookie.name];
+    }
+    return cookieList;
+}
+
+-(NSDictionary *)createCookieData:(NSHTTPCookie *)cookie
+{
+    NSMutableDictionary *cookieData = [NSMutableDictionary dictionary];
+    [cookieData setObject:cookie.name forKey:@"name"];
+    [cookieData setObject:cookie.value forKey:@"value"];
+    [cookieData setObject:cookie.path forKey:@"path"];
+    [cookieData setObject:cookie.domain forKey:@"domain"];
+    [cookieData setObject:[NSString stringWithFormat:@"%@", @(cookie.version)] forKey:@"version"];
+    if (!isEmpty(cookie.expiresDate)) {
+        [cookieData setObject:[self.formatter stringFromDate:cookie.expiresDate] forKey:@"expires"];
+    }
+    [cookieData setObject:[NSNumber numberWithBool:(BOOL)cookie.secure] forKey:@"secure"];
+    [cookieData setObject:[NSNumber numberWithBool:(BOOL)cookie.HTTPOnly] forKey:@"httpOnly"];
+    return cookieData;
+}
+
 RCT_EXPORT_METHOD(goBack:(nonnull NSNumber *)reactTag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCWebView *> *viewRegistry) {

@@ -154,6 +154,9 @@ export interface Cookie {
   secure?: boolean;
   httpOnly?: boolean;
 }
+export interface Cookies {
+  [key: string]: Cookie;
+}
 
 export type WebViewEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 
@@ -240,6 +243,8 @@ export interface ViewManager {
   startLoadWithResult: Function;
   setCookie: (url: string, cookie: Cookie, useWebKit?: boolean) => Promise<boolean>;
   clearAllCookies: (useWebKit?: boolean) => Promise<boolean>;
+  getAllCookies: (useWebKit?: boolean) => Promise<Cookies>;
+
 }
 export interface WebViewNativeConfig {
   /**

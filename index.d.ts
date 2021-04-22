@@ -16,6 +16,10 @@ export interface Cookie {
     httpOnly?: boolean;
   }
 
+export interface Cookies {
+  [key: string]: Cookie;
+}
+
 declare class WebView<P = {}> extends Component<WebViewProps & P> {
     /**
      * Go back one page in the webview's history.
@@ -81,6 +85,8 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
     static setCookie(url: string, cookie: Cookie, useWebkit?: boolean): Promise<boolean>;
 
     static clearAllCookies(useWebKit?: boolean): Promise<boolean>;
+
+    static getAllCookies(useWebKit?: boolean): Promise<Cookies>;
 
 }
 
