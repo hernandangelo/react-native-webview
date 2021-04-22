@@ -344,6 +344,9 @@ RCT_EXPORT_METHOD(
 
 -(NSDictionary *)createCookieData:(NSHTTPCookie *)cookie
 {
+    NSDateFormatter *formatter = [NSDateFormatter new];
+    [formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"];
+    
     NSMutableDictionary *cookieData = [NSMutableDictionary dictionary];
     [cookieData setObject:cookie.name forKey:@"name"];
     [cookieData setObject:cookie.value forKey:@"value"];
@@ -351,7 +354,7 @@ RCT_EXPORT_METHOD(
     [cookieData setObject:cookie.domain forKey:@"domain"];
     [cookieData setObject:[NSString stringWithFormat:@"%@", @(cookie.version)] forKey:@"version"];
     if (!isEmpty(cookie.expiresDate)) {
-        [cookieData setObject:[self.formatter stringFromDate:cookie.expiresDate] forKey:@"expires"];
+        [cookieData setObject:[formatter stringFromDate:cookie.expiresDate] forKey:@"expires"];
     }
     [cookieData setObject:[NSNumber numberWithBool:(BOOL)cookie.secure] forKey:@"secure"];
     [cookieData setObject:[NSNumber numberWithBool:(BOOL)cookie.HTTPOnly] forKey:@"httpOnly"];
