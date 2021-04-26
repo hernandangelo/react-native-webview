@@ -281,8 +281,7 @@ RCT_EXPORT_METHOD(
     }
 }
 
-RCT_EXPORT_METHOD(
-  resetDataStore
+RCT_EXPORT_METHOD(resetDataStore)
 {
   dispatch_async(dispatch_get_main_queue(), ^(){
     [[RNCWKProcessPoolManager sharedManager] resetDataStore];
