@@ -244,6 +244,7 @@ export interface ViewManager {
   setCookie: (url: string, cookie: Cookie, useWebKit?: boolean) => Promise<boolean>;
   clearAllCookies: (useWebKit?: boolean) => Promise<boolean>;
   getAllCookies: (useWebKit?: boolean) => Promise<Cookies>;
+  resetDataStore: () => void;
 
 }
 export interface WebViewNativeConfig {

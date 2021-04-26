@@ -282,6 +282,14 @@ RCT_EXPORT_METHOD(
 }
 
 RCT_EXPORT_METHOD(
+  resetDataStore
+{
+  dispatch_async(dispatch_get_main_queue(), ^(){
+    [[RNCWKProcessPoolManager sharedManager] resetDataStore];
+  });
+}
+
+RCT_EXPORT_METHOD(
     clearAllCookies:(BOOL)useWebKit
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)

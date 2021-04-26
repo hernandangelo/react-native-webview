@@ -12,5 +12,6 @@
 + (instancetype) sharedManager;
 - (WKProcessPool *)sharedProcessPool;
 - (WKWebsiteDataStore *)sharedDataStore;
+- (void)resetDataStore;
 
 @end

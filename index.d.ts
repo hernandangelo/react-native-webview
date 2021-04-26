@@ -88,6 +88,8 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
 
     static getAllCookies(useWebKit?: boolean): Promise<Cookies>;
 
+    static resetDataStore(): void;
+
 }
 
 export {WebView};

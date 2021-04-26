@@ -41,5 +41,9 @@
     return _sharedDataStore;
 }
 
+- (void)resetDataStore {
+    _sharedDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+}
+
 @end
 
