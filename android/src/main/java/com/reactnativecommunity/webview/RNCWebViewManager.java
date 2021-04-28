@@ -1202,6 +1202,14 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     @Override
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
       String[] acceptTypes = fileChooserParams.getAcceptTypes();
+      if(acceptTypes.length == 1) {
+        //Workaround mimetypes input accept android 8
+        //e.g. <input type="file" accept=".doc,.docx,.xml,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+        String [] newAcceptType = acceptTypes[0].split(",");
+        if(newAcceptType.length > 1) {
+          acceptTypes = newAcceptType;
+        }
+      }
       boolean allowMultiple = fileChooserParams.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE;
       return getModule(mReactContext).startPhotoPickerIntent(filePathCallback, acceptTypes, allowMultiple);
     }
